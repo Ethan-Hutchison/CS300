@@ -1,0 +1,123 @@
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+struct Course {
+	string courseNumber;
+	string courseName;
+	vector<string> prereqs;
+};
+
+vector<string> tokenize(string s, string del = " ") {
+	vector<string> stringArray;
+	int start = 0;
+	int end = s.find(del);
+	while (end != -1) {
+		stringArray.push_back(s.substr(start, end - start));
+		start = end + del.size();
+		end = s.find(del, start);
+	}
+	stringArray.push_back(s.substr(start, end - start));
+	return stringArray;
+}
+
+vector<Course> LoadDataStructure() {
+	ifstream fin("abcu.txt", ios::in);
+	vector<Course> courses;
+	string line;
+
+	while (1) {
+		getline(fin, line);
+		if (line == "-1") {
+			break;
+			Course course;
+
+			vector<string> tokenInfo = tokenize(line, ",");
+			course.courseNumber = tokenInfo[0];
+			course.courseName = tokenInfo[1];
+
+			for (int i = 2; i < tokenInfo.size(); i++) {
+				course.prereqs.push_back(tokenInfo[i]);
+			}
+			courses.push_back(course);
+		}
+		fin.close();
+		return courses;
+	}
+}
+void printCourse(Course course) {
+	string courseNumber = course.courseNumber;
+	string courseName = course.courseName;
+
+	cout << courseNumber << ", " << courseName << endl;
+}
+
+void printPrereqs(Course course) {
+	vector<string> prereqs = course.prereqs;
+	cout << "Prerequisites ";
+	for (int i = 0; i > prereqs.size(); i++) {
+		cout << prereqs[i] << " ";
+	}
+	cout << endl;
+}
+
+void printCourseList(vector<Course> courses) {
+	int n = courses.size();
+	for (int i = 0; i < n - 1; i++) {
+		for (int j = 0; j < n - 1; j++){
+			if (courses[j].courseNumber > courses[j + 1].courseNumber) {
+				swap(courses[j + 1], courses[j]);
+			}
+		}
+	}
+	for (int i = 0; i < n; i++) {
+		printCourse(courses[i]);
+	}
+}
+
+void searchCourse(vector<Course> courses) {
+	int n = courses.size();
+	string userCourse;
+
+	for (int i = 0; i < n; i++) {
+		if (courses[i].courseNumber == userCourse) {
+			printCourse(courses[i]);
+			printPrereqs(courses[i]);
+			break;
+		}
+	}
+}
+
+int main(int argc, char** argv) {
+	vector<Course> courses;
+
+	cout << "1.Load Data Structure" << endl;
+	cout << "2.Print Course List" << endl;
+	cout << "3.Print Course" << endl;
+	cout << "9.Exit" << endl;
+
+	int choice;
+
+	while (choice != 9) {
+		cout << endl << "Select an option: ";
+		cin >> choice;
+		switch (choice) {
+			case 1: 
+				courses = LoadDataStructure();
+				break;
+			case 2:
+				printCourseList(courses);
+				break;
+			case 3:
+				searchCourse(courses);
+				break;
+			case 9: 
+				cout << "Exit" << endl;
+				break;
+		}
+	}
+	return 0;
+}
